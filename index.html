@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Valorant Crosshair Preview</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .line {
+      position: absolute;
+      background: lime;
+    }
+    .line.vert {
+      width: 2px;
+      height: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .line.horiz {
+      height: 2px;
+      width: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .center-dot {
+      width: 4px;
+      height: 4px;
+      background: red;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .controls {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      background: #111;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    input[type="range"] {
+      width: 100px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="crosshair" id="crosshair">
+  <div class="line vert" id="top"></div>
+  <div class="line vert" id="bottom"></div>
+  <div class="line horiz" id="left"></div>
+  <div class="line horiz" id="right"></div>
+  <div class="center-dot" id="dot"></div>
+</div>
+
+<div class="controls">
+  <label>Cor:
+    <input type="color" id="color" value="#00FF00">
+  </label><br>
+  <label>Tamanho:
+    <input type="range" id="size" min="2" max="30" value="10">
+  </label><br>
+  <label>Mostrar pontinho:
+    <input type="checkbox" id="dotToggle" checked>
+  </label>
+<button onclick="exportConfig()">Exportar</button>
+<pre id="output" style="margin-top:10px;color:lime;"></pre>
+<button onclick="exportValorantCrosshair()">Exportar (Valorant Code)</button>
+<pre id="output" style="margin-top:10px;color:lime;"></pre>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
