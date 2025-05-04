@@ -1,4 +1,4 @@
-const colorInput = document.getElementById("color")
+const colorOptions = document.querySelectorAll(".color-option")
 const sizeInput = document.getElementById("size")
 const sizeValue = document.getElementById("sizeValue")
 const dotToggle = document.getElementById("dotToggle")
@@ -10,15 +10,24 @@ const themeToggle = document.getElementById("themeToggle")
 const presetsGrid = document.getElementById("presets-grid")
 const toast = document.getElementById("toast")
 
+const innerLineThicknessInput = document.getElementById("innerLineThickness")
+const innerLineThicknessValue = document.getElementById("innerLineThicknessValue")
+const innerLineLengthInput = document.getElementById("innerLineLength")
+const innerLineLengthValue = document.getElementById("innerLineLengthValue")
+const innerLineOffsetInput = document.getElementById("innerLineOffset")
+const innerLineOffsetValue = document.getElementById("innerLineOffsetValue")
+
 const valorantColors = {
   1: "#00ff00", // Verde
   2: "#ffff00", // Amarelo
   3: "#00ffff", // Ciano
   4: "#0000ff", // Azul
-  5: "#ff00ff", // Magenta
+  5: "#fc00fc", // Magenta
   6: "#ffffff", // Branco
   7: "#ff0000", // Vermelho
 }
+
+let selectedColorId = 1
 
 const presets = [
   {
@@ -71,29 +80,19 @@ const presets = [
   },
 ]
 
-function closestValorantColor(hex) {
-  const hexToRGB = (h) => {
-    const r = Number.parseInt(h.slice(1, 3), 16)
-    const g = Number.parseInt(h.slice(3, 5), 16)
-    const b = Number.parseInt(h.slice(5, 7), 16)
-    return [r, g, b]
+function selectColor(colorId) {
+  colorOptions.forEach((option) => {
+    option.classList.remove("active")
+  })
+
+  const selectedOption = document.querySelector(`.color-option[data-color-id="${colorId}"]`)
+  if (selectedOption) {
+    selectedOption.classList.add("active")
   }
 
-  const dist = (c1, c2) => Math.sqrt(c1.reduce((acc, v, i) => acc + (v - c2[i]) ** 2, 0))
+  selectedColorId = colorId
 
-  const input = hexToRGB(hex.toLowerCase())
-  let closest = 1
-  let minDist = Number.POSITIVE_INFINITY
-
-  for (const id in valorantColors) {
-    const d = dist(input, hexToRGB(valorantColors[id]))
-    if (d < minDist) {
-      minDist = d
-      closest = Number.parseInt(id)
-    }
-  }
-
-  return closest
+  updateCrosshair()
 }
 
 function parseValorantCode(code) {
@@ -168,10 +167,24 @@ function updateCrosshairFromCode(code) {
       throw new Error("Não foi possível analisar o código")
     }
 
-    colorInput.value = valorantColors[params.colorId] || "#00ff00"
+    if (params.colorId && params.colorId >= 1 && params.colorId <= 7) {
+      selectColor(params.colorId)
+    } else {
+      selectColor(1)
+    }
+
     sizeInput.value = params.size || 1
     sizeValue.textContent = params.size || 1
     dotToggle.checked = params.dot || false
+
+    innerLineThicknessInput.value = params.innerLineThickness || 1
+    innerLineThicknessValue.textContent = params.innerLineThickness || 1
+
+    innerLineLengthInput.value = params.innerLineLength || 6
+    innerLineLengthValue.textContent = params.innerLineLength || 6
+
+    innerLineOffsetInput.value = params.innerLineOffset || 0
+    innerLineOffsetValue.textContent = params.innerLineOffset || 0
 
     updateCrosshair()
 
@@ -183,17 +196,31 @@ function updateCrosshairFromCode(code) {
 }
 
 function updateCrosshair() {
-  const color = colorInput.value
+  const color = valorantColors[selectedColorId]
   const size = Number.parseInt(sizeInput.value)
+  const innerThickness = Number.parseInt(innerLineThicknessInput.value)
+  const innerLength = Number.parseInt(innerLineLengthInput.value)
+  const innerOffset = Number.parseInt(innerLineOffsetInput.value)
+
   sizeValue.textContent = size
 
-  document.getElementById("top").style.top = `calc(50% - ${size + 2}px)`
-  document.getElementById("bottom").style.top = `calc(50% + 2px)`
-  document.getElementById("top").style.height = document.getElementById("bottom").style.height = `${size}px`
+  lines.forEach((el) => {
+    if (el.id === "top" || el.id === "bottom") {
+      el.style.width = `${innerThickness}px`
+    } else {
+      el.style.height = `${innerThickness}px`
+    }
+  })
 
-  document.getElementById("left").style.left = `calc(50% - ${size + 2}px)`
-  document.getElementById("right").style.left = `calc(50% + 2px)`
-  document.getElementById("left").style.width = document.getElementById("right").style.width = `${size}px`
+  document.getElementById("top").style.height = `${innerLength}px`
+  document.getElementById("bottom").style.height = `${innerLength}px`
+  document.getElementById("left").style.width = `${innerLength}px`
+  document.getElementById("right").style.width = `${innerLength}px`
+
+  document.getElementById("top").style.top = `calc(50% - ${innerLength + innerOffset}px)`
+  document.getElementById("bottom").style.top = `calc(50% + ${innerOffset}px)`
+  document.getElementById("left").style.left = `calc(50% - ${innerLength + innerOffset}px)`
+  document.getElementById("right").style.left = `calc(50% + ${innerOffset}px)`
 
   lines.forEach((el) => (el.style.background = color))
   dot.style.background = color
@@ -201,23 +228,17 @@ function updateCrosshair() {
 }
 
 function exportValorantCrosshair() {
-  const color = colorInput.value
   const hasDot = dotToggle.checked ? 1 : 0
   const size = Number.parseInt(sizeInput.value)
+  const innerThickness = Number.parseInt(innerLineThicknessInput.value)
+  const innerLength = Number.parseInt(innerLineLengthInput.value)
+  const innerOffset = Number.parseInt(innerLineOffsetInput.value)
 
-  const colorId = closestValorantColor(color)
+  let valorantCode = `0;P;c;${selectedColorId};o;1;d;${hasDot};z;${size};f;0;`
 
-  let valorantCode = `0;P;c;${colorId};o;1;d;${hasDot};z;${size};f;0;`
-
-  const innerThickness = Math.max(1, Math.floor(size / 5))
-  const innerLength = size
-  const innerOffset = 0
   valorantCode += `0t;${innerThickness};0l;${innerLength};0o;${innerOffset};0a;1;`
 
-  const outerThickness = Math.max(1, Math.floor(innerThickness / 2))
-  const outerLength = Math.floor(innerLength / 2)
-  const outerOffset = innerOffset + innerLength
-  valorantCode += `1t;${outerThickness};1l;${outerLength};1o;${outerOffset};1a;0;1m;0;1f;0`
+  valorantCode += `1t;1;1l;0;1o;0;1a;0;1m;0;1f;0`
 
   output.textContent = valorantCode
   showToast("Código gerado com sucesso!")
@@ -254,8 +275,16 @@ function toggleTheme() {
   const currentTheme = html.getAttribute("data-theme")
   const newTheme = currentTheme === "dark" ? "light" : "dark"
 
+  html.classList.add("theme-transition")
+
   html.setAttribute("data-theme", newTheme)
   localStorage.setItem("theme", newTheme)
+
+  themeToggle.checked = newTheme === "light"
+
+  setTimeout(() => {
+    html.classList.remove("theme-transition")
+  }, 500)
 }
 
 function createPresets() {
@@ -351,6 +380,13 @@ function createPresets() {
   })
 }
 
+colorOptions.forEach((option) => {
+  option.addEventListener("click", function () {
+    const colorId = Number.parseInt(this.getAttribute("data-color-id"))
+    selectColor(colorId)
+  })
+})
+
 valorantCodeInput.addEventListener("input", () => {
   const code = valorantCodeInput.value
   if (code) {
@@ -359,14 +395,31 @@ valorantCodeInput.addEventListener("input", () => {
 })
 
 sizeInput.addEventListener("input", updateCrosshair)
-colorInput.addEventListener("input", updateCrosshair)
 dotToggle.addEventListener("change", updateCrosshair)
 themeToggle.addEventListener("change", toggleTheme)
+
+innerLineThicknessInput.addEventListener("input", function () {
+  innerLineThicknessValue.textContent = this.value
+  updateCrosshair()
+})
+
+innerLineLengthInput.addEventListener("input", function () {
+  innerLineLengthValue.textContent = this.value
+  updateCrosshair()
+})
+
+innerLineOffsetInput.addEventListener("input", function () {
+  innerLineOffsetValue.textContent = this.value
+  updateCrosshair()
+})
 
 document.addEventListener("DOMContentLoaded", () => {
   const savedTheme = localStorage.getItem("theme") || "dark"
   document.documentElement.setAttribute("data-theme", savedTheme)
+
   themeToggle.checked = savedTheme === "light"
+
+  selectColor(1)
 
   createPresets()
 

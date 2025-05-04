@@ -17,11 +17,11 @@
       </div>
       <label class="theme-toggle">
         <input type="checkbox" id="themeToggle">
-        <div class="theme-icons">
+        <span class="theme-slider"></span>
+        <span class="theme-icons">
           <span class="theme-icon">🌙</span>
           <span class="theme-icon">☀️</span>
-        </div>
-        <span class="theme-slider"></span>
+        </span>
       </label>
     </div>
 
@@ -46,8 +46,16 @@
         </div>
         
         <div class="control-group">
-          <label for="color">Cor:</label>
-          <input type="color" id="color" value="#00FF00" />
+          <label>Cor:</label>
+          <div class="color-selector">
+            <div class="color-option" data-color-id="1" style="background-color: #00ff00;"></div>
+            <div class="color-option" data-color-id="2" style="background-color: #ffff00;"></div>
+            <div class="color-option" data-color-id="3" style="background-color: #00ffff;"></div>
+            <div class="color-option" data-color-id="4" style="background-color: #0000ff;"></div>
+            <div class="color-option" data-color-id="5" style="background-color: #fc00fc;"></div>
+            <div class="color-option" data-color-id="6" style="background-color: #ffffff;"></div>
+            <div class="color-option" data-color-id="7" style="background-color: #ff0000;"></div>
+          </div>
         </div>
         
         <div class="control-group">
@@ -56,6 +64,36 @@
             <div class="range-slider">
               <input type="range" id="size" min="2" max="30" value="10" />
               <span class="range-value" id="sizeValue">10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="innerLineThickness">Espessura da Linha:</label>
+          <div class="range-container">
+            <div class="range-slider">
+              <input type="range" id="innerLineThickness" min="1" max="6" value="1" />
+              <span class="range-value" id="innerLineThicknessValue">1</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="innerLineLength">Comprimento da Linha:</label>
+          <div class="range-container">
+            <div class="range-slider">
+              <input type="range" id="innerLineLength" min="0" max="15" value="6" />
+              <span class="range-value" id="innerLineLengthValue">6</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="innerLineOffset">Deslocamento da Linha:</label>
+          <div class="range-container">
+            <div class="range-slider">
+              <input type="range" id="innerLineOffset" min="0" max="10" value="0" />
+              <span class="range-value" id="innerLineOffsetValue">0</span>
             </div>
           </div>
         </div>
@@ -87,7 +125,6 @@
     <div class="presets-section">
       <h2>Presets Populares</h2>
       <div class="presets-grid" id="presets-grid">
-        <!-- Presets serão adicionados via JavaScript -->
       </div>
     </div>
 
