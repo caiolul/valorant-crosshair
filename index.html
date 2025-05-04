@@ -1,84 +1,141 @@
 <!DOCTYPE html>
-<html lang="en">
-   <head>
-      <meta charset="UTF-8" />
-      <title>Valorant Crosshair Preview</title>
-      <style>
-         body {
-         margin: 0;
-         background: #000;
-         height: 100vh;
-         overflow: hidden;
-         }
-         .crosshair {
-         position: absolute;
-         top: 50%;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         }
-         .line {
-         position: absolute;
-         background: lime;
-         }
-         .line.vert {
-         width: 2px;
-         height: 20px;
-         left: 50%;
-         transform: translateX(-50%);
-         }
-         .line.horiz {
-         height: 2px;
-         width: 20px;
-         top: 50%;
-         transform: translateY(-50%);
-         }
-         .center-dot {
-         width: 4px;
-         height: 4px;
-         background: red;
-         border-radius: 50%;
-         position: absolute;
-         top: 50%;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         }
-         .controls {
-         position: fixed;
-         bottom: 10px;
-         left: 10px;
-         background: #111;
-         color: white;
-         padding: 10px;
-         border-radius: 8px;
-         }
-         input[type="range"] {
-         width: 100px;
-         }
-      </style>
-   </head>
-   <body>
-      <div class="crosshair" id="crosshair">
-         <div class="line vert" id="top"></div>
-         <div class="line vert" id="bottom"></div>
-         <div class="line horiz" id="left"></div>
-         <div class="line horiz" id="right"></div>
-         <div class="center-dot" id="dot"></div>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valorant Crosshair Generator</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <h1>VALORANT CROSSHAIR GENERATOR</h1>
+        <p>Crie, personalize e exporte sua mira para o jogo</p>
       </div>
-      <div class="controls">
-         <label>Cor:
-         <input type="color" id="color" value="#00FF00">
-         </label><br>
-         <label>Tamanho:
-         <input type="range" id="size" min="2" max="30" value="10">
-         </label><br>
-         <label>Mostrar pontinho:
-         <input type="checkbox" id="dotToggle" checked>
-         </label>
-         <button onclick="exportConfig()">Exportar</button>
-         <pre id="output" style="margin-top:10px;color:lime;"></pre>
-         <button onclick="exportValorantCrosshair()">Exportar (Valorant Code)</button>
-         <pre id="output" style="margin-top:10px;color:lime;"></pre>
+      <label class="theme-toggle">
+        <input type="checkbox" id="themeToggle">
+        <span class="theme-slider"></span>
+        <span class="theme-icons">
+          <span class="theme-icon">🌙</span>
+          <span class="theme-icon">☀️</span>
+        </span>
+      </label>
+    </div>
+
+    <div class="content">
+      <div class="preview-section">
+        <div class="preview-background"></div>
+        <div class="crosshair" id="crosshair">
+          <div class="line vert" id="top"></div>
+          <div class="line vert" id="bottom"></div>
+          <div class="line horiz" id="left"></div>
+          <div class="line horiz" id="right"></div>
+          <div class="center-dot" id="dot"></div>
+        </div>
       </div>
-      <script src="script.js"></script>
-   </body>
+
+      <div class="controls-section">
+        <h2>Configuração da Mira</h2>
+        
+        <div class="control-group">
+          <label for="valorantCodeInput">Código Valorant:</label>
+          <input type="text" id="valorantCodeInput" placeholder="Cole seu código aqui" />
+        </div>
+        
+        <div class="control-group">
+          <label>Cor:</label>
+          <div class="color-selector">
+            <div class="color-option" data-color-id="1" style="background-color: #00ff00;"></div>
+            <div class="color-option" data-color-id="2" style="background-color: #ffff00;"></div>
+            <div class="color-option" data-color-id="3" style="background-color: #00ffff;"></div>
+            <div class="color-option" data-color-id="4" style="background-color: #0000ff;"></div>
+            <div class="color-option" data-color-id="5" style="background-color: #fc00fc;"></div>
+            <div class="color-option" data-color-id="6" style="background-color: #ffffff;"></div>
+            <div class="color-option" data-color-id="7" style="background-color: #ff0000;"></div>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <label for="size">Tamanho:</label>
+          <div class="range-container">
+            <div class="range-slider">
+              <input type="range" id="size" min="2" max="30" value="10" />
+              <span class="range-value" id="sizeValue">10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="innerLineThickness">Espessura da Linha:</label>
+          <div class="range-container">
+            <div class="range-slider">
+              <input type="range" id="innerLineThickness" min="1" max="6" value="1" />
+              <span class="range-value" id="innerLineThicknessValue">1</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="innerLineLength">Comprimento da Linha:</label>
+          <div class="range-container">
+            <div class="range-slider">
+              <input type="range" id="innerLineLength" min="0" max="15" value="6" />
+              <span class="range-value" id="innerLineLengthValue">6</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="innerLineOffset">Deslocamento da Linha:</label>
+          <div class="range-container">
+            <div class="range-slider">
+              <input type="range" id="innerLineOffset" min="0" max="10" value="0" />
+              <span class="range-value" id="innerLineOffsetValue">0</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <div class="checkbox-container">
+            <label for="dotToggle">Mostrar ponto central:</label>
+            <label class="custom-checkbox">
+              <input type="checkbox" id="dotToggle" checked />
+              <span class="checkmark"></span>
+            </label>
+          </div>
+        </div>
+        
+        <button onclick="exportValorantCrosshair()">
+          <i class="fas fa-download"></i>
+          Exportar Código
+        </button>
+        
+        <div class="output-container">
+          <pre id="output"></pre>
+          <button class="copy-btn" onclick="copyToClipboard()" title="Copiar para área de transferência">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="presets-section">
+      <h2>Presets Populares</h2>
+      <div class="presets-grid" id="presets-grid">
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>© 2025 Valorant Crosshair Generator | Não afiliado à Riot Games</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Código copiado com sucesso!</div>
+
+  <script src="script.js"></script>
+</body>
 </html>
+
