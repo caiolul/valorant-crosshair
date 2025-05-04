@@ -96,37 +96,82 @@ function closestValorantColor(hex) {
   return closest
 }
 
-function updateCrosshairFromCode(code) {
+function parseValorantCode(code) {
   try {
     if (!code || !code.includes(";P;")) {
       throw new Error("Código inválido")
     }
 
     const parts = code.split(";")
+    const params = {}
 
-    let colorId = 1
-    let size = 10
-    let hasDot = false
-
-    for (let i = 0; i < parts.length; i++) {
+    for (let i = 0; i < parts.length - 1; i++) {
       if (parts[i] === "c" && i + 1 < parts.length) {
-        colorId = Number.parseInt(parts[i + 1])
+        params.colorId = Number.parseInt(parts[i + 1])
+      }
+      if (parts[i] === "o" && i + 1 < parts.length) {
+        params.outline = parts[i + 1] === "1"
       }
       if (parts[i] === "d" && i + 1 < parts.length) {
-        hasDot = parts[i + 1] === "1"
+        params.dot = parts[i + 1] === "1"
       }
       if (parts[i] === "z" && i + 1 < parts.length) {
-        size = Number.parseInt(parts[i + 1])
+        params.size = Number.parseInt(parts[i + 1])
       }
-      if (parts[i] === "0t" && i + 1 < parts.length) {
-        size = Math.max(size, Number.parseInt(parts[i + 1]))
+      if (parts[i] === "f" && i + 1 < parts.length) {
+        params.fadeWithFiring = parts[i + 1] === "1"
       }
     }
 
-    colorInput.value = valorantColors[colorId] || "#00ff00"
-    sizeInput.value = size
-    sizeValue.textContent = size
-    dotToggle.checked = hasDot
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (parts[i] === "0t" && i + 1 < parts.length) {
+        params.innerLineThickness = Number.parseInt(parts[i + 1])
+      }
+      if (parts[i] === "0l" && i + 1 < parts.length) {
+        params.innerLineLength = Number.parseInt(parts[i + 1])
+      }
+      if (parts[i] === "0o" && i + 1 < parts.length) {
+        params.innerLineOffset = Number.parseInt(parts[i + 1])
+      }
+      if (parts[i] === "0a" && i + 1 < parts.length) {
+        params.innerLineOpacity = parts[i + 1] === "1" ? 1 : 0
+      }
+    }
+
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (parts[i] === "1t" && i + 1 < parts.length) {
+        params.outerLineThickness = Number.parseInt(parts[i + 1])
+      }
+      if (parts[i] === "1l" && i + 1 < parts.length) {
+        params.outerLineLength = Number.parseInt(parts[i + 1])
+      }
+      if (parts[i] === "1o" && i + 1 < parts.length) {
+        params.outerLineOffset = Number.parseInt(parts[i + 1])
+      }
+      if (parts[i] === "1a" && i + 1 < parts.length) {
+        params.outerLineOpacity = parts[i + 1] === "1" ? 1 : 0
+      }
+    }
+
+    return params
+  } catch (error) {
+    console.error("Erro ao analisar código:", error)
+    return null
+  }
+}
+
+function updateCrosshairFromCode(code) {
+  try {
+    const params = parseValorantCode(code)
+
+    if (!params) {
+      throw new Error("Não foi possível analisar o código")
+    }
+
+    colorInput.value = valorantColors[params.colorId] || "#00ff00"
+    sizeInput.value = params.size || 1
+    sizeValue.textContent = params.size || 1
+    dotToggle.checked = params.dot || false
 
     updateCrosshair()
 
@@ -157,12 +202,22 @@ function updateCrosshair() {
 
 function exportValorantCrosshair() {
   const color = colorInput.value
-  const dot = dotToggle.checked ? 1 : 0
+  const hasDot = dotToggle.checked ? 1 : 0
   const size = Number.parseInt(sizeInput.value)
 
   const colorId = closestValorantColor(color)
 
-  const valorantCode = `0;P;c;${colorId};o;1;d;${dot};z;${size};f;0;0t;${size};0l;0;0o;3;0a;1;0f;0;1t;0;1l;0;1o;${size};1a;1;1m;0;1f;0`
+  let valorantCode = `0;P;c;${colorId};o;1;d;${hasDot};z;${size};f;0;`
+
+  const innerThickness = Math.max(1, Math.floor(size / 5))
+  const innerLength = size
+  const innerOffset = 0
+  valorantCode += `0t;${innerThickness};0l;${innerLength};0o;${innerOffset};0a;1;`
+
+  const outerThickness = Math.max(1, Math.floor(innerThickness / 2))
+  const outerLength = Math.floor(innerLength / 2)
+  const outerOffset = innerOffset + innerLength
+  valorantCode += `1t;${outerThickness};1l;${outerLength};1o;${outerOffset};1a;0;1m;0;1f;0`
 
   output.textContent = valorantCode
   showToast("Código gerado com sucesso!")
